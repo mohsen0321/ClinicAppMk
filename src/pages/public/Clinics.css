@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Clinics.css - Modern Medical Clinics Directory Styling
+   ========================================================================== */
+
+:root {
+  --bg-page: #f8fafc;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --primary-color: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-light: #f0f9ff;
+  --secondary-color: #0d9488;
+  --secondary-hover: #0f766e;
+  --secondary-light: #ccfbf1;
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  --shadow-hover: 0 12px 28px -4px rgba(2, 132, 199, 0.14);
+  --radius-xl: 20px;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-pill: 9999px;
+  --transition-fast: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clinics-page-container {
+  max-width: 1280px;
+  margin: 2.5rem auto 4rem;
+  padding: 0 1.5rem;
+  direction: rtl;
+}
+
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-badge {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  font-size: 0.825rem;
+  font-weight: 700;
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-pill);
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(2, 132, 199, 0.15);
+}
+
+.page-header h1 {
+  font-size: 2.35rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.page-header p {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* Grid Layout */
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* Card Styling */
+.clinic-full-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-fast);
+}
+
+.clinic-full-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+/* Cover Wrapper & Image Zoom */
+.clinic-cover-wrapper {
+  position: relative;
+  height: 200px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  overflow: hidden;
+}
+
+.clinic-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.clinic-full-card:hover .clinic-cover {
+  transform: scale(1.05);
+}
+
+.clinic-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.placeholder-icon {
+  width: 54px;
+  height: 54px;
+}
+
+.doctors-count-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--secondary-hover);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Content Area */
+.clinic-card-content {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.clinic-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.6rem;
+}
+
+.clinic-desc {
+  color: var(--text-muted);
+  font-size: 0.925rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.clinic-details-meta {
+  background: #f8fafc;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.meta-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+/* Action Button */
+.btn-clinic-doctors {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.925rem;
+  text-decoration: none;
+  transition: var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+.btn-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.btn-clinic-doctors:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3);
+}
+
+.btn-clinic-doctors:hover .btn-arrow {
+  transform: translateX(-4px);
+}
+
+/* Skeleton & Empty States */
+.clinic-skeleton-card {
+  height: 380px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-xl);
+  animation: shimmer 1.5s infinite;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 5rem 1.5rem;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.empty-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.empty-icon-wrapper svg {
+  width: 32px;
+  height: 32px;
+}
+
+.empty-state h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 640px) {
+  .clinics-page-container {
+    padding: 0 1rem;
+  }
+}
+

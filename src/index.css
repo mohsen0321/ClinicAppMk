@@ -1,0 +1,90 @@
+/* استيراد خط عربي وإنجليزي عصري وأنيق */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ألوان النظام الرئيسية */
+  --primary: #0284c7;        /* أزرق طبي أساسي */
+  --primary-hover: #0369a1;  /* أزرق داكن عند التمرير */
+  --primary-light: #e0f2fe;  /* أزرق فاتح جداً للخلفيات والبطاقات */
+  
+  --secondary: #10b981;      /* أخضر مائل للنعناع للنجاح والمواعيد */
+  --secondary-hover: #059669;
+  --secondary-light: #d1fae5;
+  
+  --danger: #ef4444;         /* أحمر للإلغاء والرفض والأخطاء */
+  --danger-light: #fee2e2;
+  
+  --warning: #f59e0b;        /* برتقالي لحالة الانتظار Pending */
+  --warning-light: #fef3c7;
+  
+  --dark: #0f172a;           /* لون النصوص الرئيسي */
+  --gray-dark: #334155;
+  --gray: #64748b;           /* لون النصوص الثانوية */
+  --gray-light: #f1f5f9;     /* رمادي ناعم لخلفية البطاقات */
+  --border: #e2e8f0;         /* لون الحدود */
+  --white: #ffffff;
+  
+  /* ظلال ناعمة عصرية */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  
+  /* الاستدارة */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --transition: all 0.25s ease-in-out;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background-color: #f8fafc;
+  color: var(--dark);
+  min-height: 100vh;
+  direction: rtl; /* دعم اللغة العربية */
+  text-align: right;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+input, select, textarea {
+  outline: none;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+/* تنسيق شريط التمرير Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
