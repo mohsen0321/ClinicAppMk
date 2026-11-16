@@ -1,6 +1,6 @@
 // عنوان الـ Backend (تأكد من مطابقته للبورت الذي يعمل عليه مشروعك في Visual Studio)
-export const API_BASE_URL = 'http://clinicsystemmk.runasp.net/api';
-export const BASE_URL = 'http://clinicsystemmk.runasp.net'; // لعرض مسارات الصور المرفوعة
+export const API_BASE_URL = 'https://clinicsystemmk.runasp.net/api';
+export const BASE_URL = 'https://clinicsystemmk.runasp.net'; // لعرض مسارات الصور المرفوعة
 
 // دالة مساعدة عامة لتنفيذ طلبات الـ Fetch
 async function request(endpoint, options = {}) {

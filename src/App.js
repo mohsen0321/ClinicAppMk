@@ -34,10 +34,10 @@ import ScrollToTop from './components/ScrollToTop';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router >
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
-           <ScrollToTop />
+          <ScrollToTop />
           <main style={{ flex: 1 }}>
             <Routes>
               {/* الصفحات العامة */}
@@ -109,7 +109,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
-   
+
   );
 }
 
