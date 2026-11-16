@@ -9,7 +9,7 @@ const ManagePatients = () => {
 
   // نافذة عرض سجل المريض
   const [historyModal, setHistoryModal] = useState(null);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [, setLoadingHistory] = useState(false); // تم تعديلها لتجنب تحذير المتغير غير المستخدم أو يمكنك حذفها
 
   // نافذة الإشعارات التفاعلية (Z-index: 3000 لتعلو فوق الجميع)
   const [infoModal, setInfoModal] = useState({
@@ -32,6 +32,7 @@ const ManagePatients = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchPatients();
   }, [search]);
@@ -310,4 +311,5 @@ const ManagePatients = () => {
   );
 };
 
+ManagePatients.displayName = 'ManagePatients';
 export default ManagePatients;

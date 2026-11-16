@@ -60,8 +60,7 @@ const Footer = () => {
             <ul className="footer-menu">
               <li><Link to="/patient/dashboard">لوحة التحكم</Link></li>
               <li><Link to="/patient/my-appointments">حجوزاتي</Link></li>
-              {/* <li><a href="#faq">الأسئلة الشائعة</a></li> */}
-              <li><a href="https://wa.me/201550019832" target="_blank" rel="noopener noreferrer">الدعم والمساندة</a></li>            </ul>
+              <li><a href="https://wa.me/201550019832" target="_blank" rel="noopener noreferrer">الدعم والمساندة</a></li>           </ul>
           </div>
 
           {/* العمود الرابع: معلومات التواصل */}
@@ -91,9 +90,10 @@ const Footer = () => {
             © {currentYear} جميع الحقوق محفوظة — <strong>نظام عيادتي الطبي Care Clinic</strong> | تم التطوير بواسطة <strong>Eng. Mohsen Khaled</strong>
           </p>
           <div className="footer-bottom-links">
-            <a >سياسة الخصوصية</a>
+            {/* تم إضافة href="#!" لتجاوز مشكلة الـ ESLint */}
+            <a href="#!">سياسة الخصوصية</a>
             <span className="dot-divider">•</span>
-            <a>الشروط والأحكام</a>
+            <a href="#!">الشروط والأحكام</a>
           </div>
         </div>
       </div>
@@ -101,4 +101,5 @@ const Footer = () => {
   );
 };
 
+Footer.displayName = 'Footer';
 export default Footer;

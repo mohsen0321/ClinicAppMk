@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
-import { api, BASE_URL } from '../services/api';
+import { BASE_URL } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
@@ -246,4 +246,5 @@ const Navbar = () => {
   );
 };
 
+Navbar.displayName = 'Navbar';
 export default Navbar;

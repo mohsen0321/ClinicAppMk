@@ -71,6 +71,7 @@ const ManageAppointments = () => {
     fetchFilters();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchAppointments();
   }, [statusFilter, doctorFilter, clinicFilter, dateFilter, search]);
@@ -459,4 +460,5 @@ const ManageAppointments = () => {
   );
 };
 
+ManageAppointments.displayName = 'ManageAppointments';
 export default ManageAppointments;
