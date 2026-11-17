@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api, BASE_URL } from '../../services/api';
+import clinicimage from '../public/clinicimage.png'; // استيراد نفس الصورة المحلية المستخدمة في الصفحة الرئيسية
 import './PatientDashboard.css';
 
 const PatientDashboard = () => {
@@ -36,9 +38,17 @@ const PatientDashboard = () => {
 
   return (
     <div className="patient-dashboard-container">
-      {/* بطاقة الترحيب العلوية */}
-      <div className="welcome-banner">
+      {/* بطاقة الترحيب العلوية بخلفية الصورة الطبية وتعتيم احترافي */}
+      <motion.div
+        className="welcome-banner"
+        style={{ backgroundImage: `url(${clinicimage})` }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className="hero-overlay" /> {/* طبقة التعتيم الداكنة لبروز النصوص والصورة بوضوح */}
         <div className="welcome-backdrop-glow" />
+
         <div className="welcome-content">
           <div className="welcome-text-group">
             <span className="welcome-greeting-badge">
@@ -86,18 +96,17 @@ const PatientDashboard = () => {
             <span>{stats?.patientName ? stats.patientName.charAt(0).toUpperCase() : 'U'}</span>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* بطاقات الإحصائيات الأربعة */}
       <div className="stats-row">
         <div className="stat-card">
           <div className="stat-icon total">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
-
               <line x1="7" y1="14" x2="11" y2="14"></line>
               <line x1="7" y1="17" x2="14" y2="17"></line>
               <circle cx="15" cy="14" r="1" fill="currentColor"></circle>
@@ -111,7 +120,7 @@ const PatientDashboard = () => {
 
         <div className="stat-card">
           <div className="stat-icon pending">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -128,13 +137,13 @@ const PatientDashboard = () => {
 
         <div className="stat-card">
           <div className="stat-icon accepted">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
               <circle cx="12" cy="15" r="3.5" fill="currentColor" opacity="0.15"></circle>
-              <path d="M9.5 15l1.5 1.5 3.5-3.5" stroke-width="2.5"></path>
+              <path d="M9.5 15l1.5 1.5 3.5-3.5" strokeWidth="2.5"></path>
             </svg>
           </div>
           <div className="stat-data">
@@ -145,14 +154,14 @@ const PatientDashboard = () => {
 
         <div className="stat-card">
           <div className="stat-icon rejected">
-            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
               <circle cx="12" cy="15" r="3.5" fill="currentColor" opacity="0.15"></circle>
-              <line x1="10" y1="13" x2="14" y2="17" stroke-width="2.5"></line>
-              <line x1="14" y1="13" x2="10" y2="17" stroke-width="2.5"></line>
+              <line x1="10" y1="13" x2="14" y2="17" strokeWidth="2.5"></line>
+              <line x1="14" y1="13" x2="10" y2="17" strokeWidth="2.5"></line>
             </svg>
           </div>
           <div className="stat-data">
@@ -197,7 +206,7 @@ const PatientDashboard = () => {
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
                   <span>
-                    التاريخ: {new Date(stats.upcomingAppointment.appointmentDate).toLocaleDateString('ar-EG')} - الساعة: {stats.upcomingAppointment.timeSlot.substring(0, 5)}
+                    التاريخ: {new Date(stats.upcomingAppointment.appointmentDate).toLocaleDateString('ar-EG')} | الساعة: {stats.upcomingAppointment.timeSlot?.substring(0, 5)}
                   </span>
                 </div>
               </div>
@@ -259,7 +268,7 @@ const PatientDashboard = () => {
                     <td>
                       <div className="date-cell">
                         <span>{new Date(app.appointmentDate).toLocaleDateString('ar-EG')}</span>
-                        <span className="time-sub">({app.timeSlot.substring(0, 5)})</span>
+                        <span className="time-sub">({app.timeSlot?.substring(0, 5)})</span>
                       </div>
                     </td>
                     <td>

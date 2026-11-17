@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import './AuthForm.css';
+import AuthLayout from './AuthLayout';
+import PasswordField from './PasswordField';
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // 1: طلب الرمز، 2: إدخال الرمز والباسورد الجديد
@@ -23,7 +24,7 @@ const ForgotPassword = () => {
     try {
       const res = await api.post('/auth/forgot-password', { email });
       setMsg({ type: 'success', text: res.message });
-      setStep(2); // الانتقال للخطوة الثانية
+      setStep(2);
     } catch (err) {
       setMsg({ type: 'error', text: err.message || 'حدث خطأ أثناء إرسال الرمز' });
     } finally {
@@ -62,98 +63,130 @@ const ForgotPassword = () => {
     }
   };
 
+  const backToEmail = () => {
+    setStep(1);
+    setOtp('');
+    setMsg({ type: '', text: '' });
+  };
+
+  const subtitle =
+    step === 1 ? (
+      'اكتب بريدك الإلكتروني المسجل وسنرسل لك رمز تحقق.'
+    ) : (
+      <>
+        أرسلنا رمزًا من 6 أرقام إلى <bdi>{email}</bdi>. اكتبه هنا ثم اختر كلمة مرور جديدة.
+      </>
+    );
+
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>استعادة كلمة المرور</h2>
-          <p>
-            {step === 1
-              ? 'أدخل بريدك الإلكتروني المسجل وسنرسل لك رمز OTP'
-              : `أدخل الرمز المرسل إلى (${email}) وكلمة المرور الجديدة`}
-          </p>
-        </div>
-
-        {msg.text && (
-          <div className={msg.type === 'success' ? 'alert-success' : 'alert-error'}>
-            {msg.text}
-          </div>
-        )}
-
-        {step === 1 ? (
-          <form onSubmit={handleRequestOtp} className="auth-form">
-            <div className="form-group">
-              <label>البريد الإلكتروني:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@mail.com"
-                required
-              />
-            </div>
-
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'جاري إرسال الرمز...' : 'إرسال رمز التحقق OTP '}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleResetPassword} className="auth-form">
-            <div className="form-group">
-              <label>رمز التحقق (6 أرقام):</label>
-              <input
-                type="text"
-                maxLength="6"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="مثال: 123456"
-                required
-                style={{ textAlign: 'center', fontSize: '1.2rem', letterSpacing: '4px' }}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>كلمة المرور الجديدة:</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="6 أحرف أو أرقام على الأقل"
-                required
-                minLength={6}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>تأكيد كلمة المرور الجديدة:</label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="أعد إدخال كلمة المرور"
-                required
-              />
-            </div>
-
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? 'جاري التحديث...' : 'تأكيد وحفظ كلمة المرور الجديدة '}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setStep(1); setMsg({ type: '', text: '' }); }}
-              style={{ background: 'none', color: 'var(--primary)', marginTop: '0.5rem', fontWeight: 600 }}
-            >
-              ← إعادة إرسال الرمز لبريد آخر
-            </button>
-          </form>
-        )}
-
-        <div className="auth-footer">
-          <p>تذكرت كلمة المرور؟ <Link to="/login">العودة لتسجيل الدخول</Link></p>
-        </div>
+    <AuthLayout title="استعادة كلمة المرور" subtitle={subtitle}>
+      <div className="auth-steps" role="img" aria-label={`الخطوة ${step} من 2`}>
+        <span className="is-done" />
+        <span className={step === 2 ? 'is-done' : ''} />
       </div>
-    </div>
+
+      {msg.text && (
+        <div
+          className={msg.type === 'success' ? 'alert-success' : 'alert-error'}
+          role={msg.type === 'error' ? 'alert' : 'status'}
+        >
+          {msg.text}
+        </div>
+      )}
+
+      {step === 1 ? (
+        <form onSubmit={handleRequestOtp} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="fp-email">البريد الإلكتروني</label>
+            <input
+              id="fp-email"
+              className="ltr"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@mail.com"
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? (
+              <span className="btn-loading-state">
+                <span className="spinner" />
+                جاري الإرسال...
+              </span>
+            ) : (
+              'إرسال الرمز'
+            )}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleResetPassword} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="fp-otp">رمز التحقق</label>
+            <input
+              id="fp-otp"
+              className="input-code"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              pattern="[0-9]{6}"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fp-new">كلمة المرور الجديدة</label>
+            <PasswordField
+              id="fp-new"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+            <span className="form-hint">6 أحرف أو أرقام على الأقل</span>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fp-confirm">تأكيد كلمة المرور</label>
+            <PasswordField
+              id="fp-confirm"
+              autoComplete="new-password"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={loading}>
+            {loading ? (
+              <span className="btn-loading-state">
+                <span className="spinner" />
+                جاري الحفظ...
+              </span>
+            ) : (
+              'حفظ كلمة المرور'
+            )}
+          </button>
+
+          <button type="button" className="btn-link" onClick={backToEmail}>
+            تغيير البريد الإلكتروني
+          </button>
+        </form>
+      )}
+
+      <div className="auth-footer">
+        <p>
+          تذكرت كلمة المرور؟ <Link to="/login">تسجيل الدخول</Link>
+        </p>
+      </div>
+    </AuthLayout>
   );
 };
 
