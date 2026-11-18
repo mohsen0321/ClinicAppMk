@@ -1,8 +1,10 @@
 /* ==========================================================================
-   PatientDashboard.css - Modern Enterprise Patient Dashboard Styling
+   PatientDashboard.css
+   نفس الباليت: سماوي #0284c7 + تيل #0d9488 + سليت (وكهرماني/أحمر للحالات).
    ========================================================================== */
 
 :root {
+  /* القيم القديمة محفوظة لأي ملف تاني بيعتمد عليها */
   --dashboard-bg: #f8fafc;
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
@@ -29,469 +31,315 @@
 }
 
 .patient-dashboard-container {
-  max-width: 1280px;
-  margin: 2.5rem auto 4rem;
-  padding: 0 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
   direction: rtl;
+  color: var(--text-dark);
+  box-sizing: border-box;
 }
 
-/* Welcome Banner */
+/* ---------- الترحيب ---------- */
 .welcome-banner {
   position: relative;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 60%, #0d9488 100%);
-  border-radius: var(--radius-xl);
-  padding: 2.75rem 2.5rem;
-  color: #ffffff;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 30px -5px rgba(2, 132, 199, 0.3);
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 190px;
+  padding: 2rem;
   overflow: hidden;
+  color: #ffffff;
+  background-color: var(--text-dark);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
 }
 
-.welcome-backdrop-glow {
+/* تعتيم من ناحية النص بدون تلوين الصورة */
+.welcome-banner::before {
+  content: '';
   position: absolute;
-  top: -40%;
-  right: -10%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
-  pointer-events: none;
+  inset: 0;
+  background: linear-gradient(
+    to left,
+    rgba(15, 23, 42, 0.88) 0%,
+    rgba(15, 23, 42, 0.65) 55%,
+    rgba(15, 23, 42, 0.35) 100%
+  );
+}
+
+.welcome-banner > * {
+  position: relative;
 }
 
 .welcome-content {
-  position: relative;
-  z-index: 1;
-  max-width: 700px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.welcome-greeting-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 0.3rem 0.85rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.8rem;
-  font-weight: 600;
-  width: fit-content;
-}
-
-.online-dot {
-  width: 7px;
-  height: 7px;
-  background-color: #34d399;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.3);
+  gap: 1.25rem;
+  max-width: 640px;
 }
 
 .welcome-text-group h2 {
-  font-size: 2.1rem;
-  font-weight: 800;
-  margin-bottom: 0.4rem;
-  letter-spacing: -0.01em;
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .welcome-text-group p {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  line-height: 1.6;
   margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .banner-actions {
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
   flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-banner-primary,
+.btn-banner-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 1.4rem;
+  font: inherit;
+  font-size: 0.925rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .btn-banner-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--secondary-color);
   color: #ffffff;
-  padding: 0.75rem 1.6rem;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
-  font-size: 0.925rem;
-  text-decoration: none;
-  transition: var(--transition-fast);
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+  background: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
 }
 
 .btn-banner-primary:hover {
   background: var(--secondary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.45);
+  border-color: var(--secondary-hover);
 }
 
 .btn-banner-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1.6rem;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
-  font-size: 0.925rem;
-  text-decoration: none;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: var(--transition-fast);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 .btn-banner-secondary:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
 }
 
-.btn-icon {
-  width: 17px;
-  height: 17px;
-}
-
-/* Avatar Wrapper */
-.banner-avatar-wrapper {
-  position: relative;
-  z-index: 1;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
-  flex-shrink: 0;
+.btn-banner-primary:focus-visible,
+.btn-banner-secondary:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
 }
 
 .banner-avatar {
-  width: 100%;
-  height: 100%;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border: 2px solid #ffffff;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ffffff;
 }
 
 .banner-avatar-placeholder {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.2rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #ffffff;
-  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.14);
 }
 
-/* Stats Metric Cards */
+/* ---------- الإحصائيات ---------- */
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  box-shadow: var(--shadow-card);
-  transition: var(--transition-fast);
-}
-
-.stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
-  border-color: rgba(2, 132, 199, 0.25);
-}
-
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.stat-icon.total { background: var(--primary-light); color: var(--primary-color); }
-.stat-icon.pending { background: var(--warning-bg); color: var(--warning-color); }
-.stat-icon.accepted { background: var(--secondary-light); color: var(--secondary-color); }
-.stat-icon.rejected { background: var(--danger-bg); color: var(--danger-color); }
-
-.stat-num {
-  display: block;
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  line-height: 1.1;
-  margin-bottom: 0.2rem;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-/* Upcoming Appointment Section */
-.upcoming-section {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 
-.section-title-wrapper {
+.stat-card {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
 }
 
-.section-title-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--primary-color);
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
-.upcoming-section h3 {
-  font-size: 1.2rem;
-  font-weight: 800;
+.stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
   color: var(--text-dark);
+}
+
+.stat-pending .stat-num { color: var(--warning-color); }
+.stat-accepted .stat-num { color: var(--secondary-hover); }
+.stat-rejected .stat-num { color: #b91c1c; }
+
+/* ---------- العناوين ---------- */
+.block-title,
+.card-top-header h3 {
   margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* ---------- أقرب موعد ---------- */
+.upcoming-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .upcoming-box {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-right: 6px solid var(--secondary-color);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem 1.75rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: var(--shadow-card);
   flex-wrap: wrap;
-  gap: 1.25rem;
-}
-
-.upcoming-main-info {
-  display: flex;
   align-items: center;
-  gap: 1.25rem;
-}
-
-.upcoming-doc-badge {
-  width: 48px;
-  height: 48px;
-  background: var(--secondary-light);
-  color: var(--secondary-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.upcoming-doc-badge svg {
-  width: 24px;
-  height: 24px;
-}
-
-.upcoming-details h4 {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 0.3rem;
-}
-
-.upcoming-meta-tags {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-bottom: 0.4rem;
-}
-
-.tag-item {
-  font-weight: 600;
-}
-
-.tag-dot {
-  color: var(--border-color);
-}
-
-.upcoming-time-row {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.875rem;
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
-.upcoming-time-row svg {
-  width: 16px;
-  height: 16px;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.825rem;
-  font-weight: 700;
-}
-
-.status-indicator-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-}
-
-.status-accepted {
-  background: var(--secondary-light);
-  color: var(--secondary-hover);
-}
-
-.status-pending {
-  background: var(--warning-bg);
-  color: var(--warning-color);
-}
-
-/* Recent Appointments Card */
-.recent-appointments-card {
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding: 1.25rem 1.5rem;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 2rem;
-  box-shadow: var(--shadow-card);
+  border-radius: 10px;
+}
+
+.upcoming-doctor {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.upcoming-doctor h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.upcoming-doctor p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.upcoming-when {
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+}
+
+.upcoming-when dt {
+  margin-bottom: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.upcoming-when dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* ---------- أحدث الحجوزات ---------- */
+.recent-appointments-card {
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
 }
 
 .card-top-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.header-title-group {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.header-icon {
-  width: 22px;
-  height: 22px;
-  color: var(--primary-color);
-}
-
-.card-top-header h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin: 0;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .view-all-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--primary-color);
-  font-weight: 700;
   font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-color);
   text-decoration: none;
-  transition: var(--transition-fast);
-}
-
-.view-all-link svg {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .view-all-link:hover {
   color: var(--primary-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.view-all-link:hover svg {
-  transform: translateX(-3px);
+.view-all-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* Table Styling */
+/* ---------- الجدول ---------- */
 .appointments-table-wrapper {
   overflow-x: auto;
 }
 
 .custom-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  min-width: 640px;
+  border-collapse: collapse;
   text-align: right;
   font-size: 0.9rem;
 }
 
 .custom-table th {
-  background: #f8fafc;
-  color: var(--text-muted);
-  padding: 0.85rem 1.1rem;
-  font-weight: 700;
+  padding: 0.75rem 1rem;
   font-size: 0.825rem;
-  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
   white-space: nowrap;
+  color: var(--text-muted);
+  background: var(--dashboard-bg);
+  border-block: 1px solid var(--border-color);
 }
 
-.custom-table th:first-child { border-top-right-radius: var(--radius-md); }
-.custom-table th:last-child { border-top-left-radius: var(--radius-md); }
-
 .custom-table td {
-  padding: 1rem 1.1rem;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-dark);
+  padding: 0.95rem 1rem;
   vertical-align: middle;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .custom-table tbody tr:last-child td {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .custom-table tbody tr:hover td {
-  background: #f8fafc;
-}
-
-.doc-name-cell strong {
-  color: var(--text-dark);
+  background: var(--dashboard-bg);
 }
 
 .date-cell {
@@ -501,72 +349,78 @@
 }
 
 .time-sub {
-  color: var(--text-muted);
   font-size: 0.825rem;
+  color: var(--text-muted);
 }
 
-/* Badges */
+/* ---------- حالات الحجز ---------- */
 .badge-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.85rem;
-  border-radius: var(--radius-pill);
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
+  border-radius: 6px;
 }
 
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-}
+.badge-pending { color: var(--warning-color); background: var(--warning-bg); }
+.badge-accepted { color: var(--secondary-hover); background: var(--secondary-light); }
+.badge-rejected { color: #b91c1c; background: var(--danger-bg); }
+.badge-completed { color: #475569; background: #f1f5f9; }
+.badge-cancelled { color: var(--text-muted); background: #f1f5f9; }
 
-.badge-pending { background: var(--warning-bg); color: var(--warning-color); }
-.badge-accepted { background: var(--secondary-light); color: var(--secondary-hover); }
-.badge-rejected { background: var(--danger-bg); color: var(--danger-color); }
-.badge-completed { background: #f1f5f9; color: #475569; }
-.badge-cancelled { background: #f1f5f9; color: var(--text-muted); text-decoration: line-through; }
-
+/* ---------- حالة فاضية وخطأ ---------- */
 .no-data-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
+  gap: 0.6rem;
+  padding: 2.5rem 1rem;
   color: var(--text-muted);
-  gap: 0.75rem;
 }
 
-.no-data-box svg {
-  width: 42px;
-  height: 42px;
-  color: #cbd5e1;
+.no-data-box p {
+  margin: 0;
 }
 
-/* Skeleton Loaders */
-.dashboard-skeleton-banner {
-  height: 200px;
+.dashboard-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.dashboard-error p {
+  margin: 0;
+}
+
+/* ---------- التحميل ---------- */
+.dashboard-skeleton-banner,
+.dashboard-skeleton-card {
   background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
   background-size: 200% 100%;
-  border-radius: var(--radius-xl);
+  border-radius: 10px;
   animation: shimmer 1.5s infinite;
+}
+
+.dashboard-skeleton-banner {
+  height: 190px;
 }
 
 .dashboard-skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
 .dashboard-skeleton-card {
-  height: 100px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-  background-size: 200% 100%;
-  border-radius: var(--radius-xl);
-  animation: shimmer 1.5s infinite;
+  height: 88px;
 }
 
 @keyframes shimmer {
@@ -574,61 +428,58 @@
   100% { background-position: -200% 0; }
 }
 
+/* ---------- موبايل ---------- */
 @media (max-width: 768px) {
-  .welcome-banner {
-    flex-direction: column-reverse;
-    text-align: center;
+  .patient-dashboard-container {
+    margin-top: 1.25rem;
     gap: 1.5rem;
-    padding: 2rem 1.5rem;
   }
-  .welcome-content {
-    align-items: center;
+
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem 1.25rem;
   }
-  .banner-actions {
-    justify-content: center;
+
+  .welcome-banner::before {
+    background: rgba(15, 23, 42, 0.72);
   }
+
+  .banner-avatar {
+    order: -1;
+    width: 64px;
+    height: 64px;
+  }
+
+  .banner-avatar-placeholder {
+    font-size: 1.6rem;
+  }
+
+  .welcome-text-group h2 {
+    font-size: 1.45rem;
+  }
+
   .upcoming-box {
     flex-direction: column;
     align-items: flex-start;
   }
 }
 
-.welcome-banner {
-  position: relative;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  color: #ffffff;
-  padding: 3rem 2rem;
-  border-radius: var(--radius-xl, 24px);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+@media (max-width: 480px) {
+  .banner-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-banner-primary,
+  .btn-banner-secondary {
+    width: 100%;
+  }
 }
 
-.welcome-banner .hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg, 
-    rgba(15, 23, 42, 0.85) 0%, 
-    rgba(3, 105, 161, 0.80) 60%, 
-    rgba(13, 148, 136, 0.82) 100%
-  );
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* لضمان ظهور محتوى البانر فوق طبقة التعتيم */
-.welcome-banner .welcome-content,
-.welcome-banner .banner-avatar-wrapper,
-.welcome-banner .banner-avatar-placeholder {
-  position: relative;
-  z-index: 2;
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-skeleton-banner,
+  .dashboard-skeleton-card {
+    animation: none;
+  }
 }

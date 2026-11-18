@@ -32,9 +32,37 @@ import ForgotPassword from './pages/public/ForgotPassword';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
+  // 🟢 التحكم في الصيانة مباشرة من هنا:
+  // لو عايز "توقّف" الموقع وتظهر صفحة الصيانة، خليها: true
+  // لو عايز تشغل الموقع طبيعي، خليها: false
+  const isMaintenance = false;
+
+  if (isMaintenance) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Tahoma, sans-serif',
+        backgroundColor: '#f8f9fa',
+        color: '#333',
+        textAlign: 'center',
+        padding: '20px'
+      }}>
+        <div style={{ fontSize: '60px', marginBottom: '20px' }}>🛠️</div>
+        <h1 style={{ color: '#e74c3c', marginBottom: '10px' }}>الموقع تحت التحديث والصيانة</h1>
+        <p style={{ fontSize: '18px', color: '#666', maxWidth: '500px', lineHeight: '1.6' }}>
+          نقوم حالياً بإجراء بعض التحديثات البرمجية لتحسين تجربة الاستخدام. سنعود للعمل بكامل طاقتنا قريباً!
+        </p>
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
-      <Router >
+      <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
           <ScrollToTop />
@@ -48,6 +76,7 @@ function App() {
               <Route path="/doctors/:id" element={<DoctorDetails />} />
               <Route path="/clinics" element={<Clinics />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+
               {/* صفحات المريض المحمية */}
               <Route
                 path="/patient/dashboard"
@@ -109,7 +138,6 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
-
   );
 }
 

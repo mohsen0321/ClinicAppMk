@@ -38,7 +38,7 @@ const ManageDoctors = () => {
       setDoctors(docs || []);
       setSpecialties(specs || []);
       setClinics(cls || []);
-    } catch (err) { console.error(err); } 
+    } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
@@ -51,22 +51,50 @@ const ManageDoctors = () => {
   };
 
   const handleOpenEdit = async (doc) => {
+    setIsEditing(true);
+    setCurrentDocId(doc.id);
+
+    // تجهيز البيانات الأولية مباشرة من عنصر الـ doc الموجود في الجدول لضمان عدم ظهور الخانات فارغة
+    let nameParts = (doc.fullName || '').replace(/^د\.\s*/, '').trim().split(' ');
+    let fName = doc.firstName || doc.userFirstName || nameParts[0] || '';
+    let lName = doc.lastName || doc.userLastName || nameParts.slice(1).join(' ') || '';
+
+    setFormData({
+      ...initialForm,
+      firstName: fName,
+      lastName: lName,
+      email: doc.email || doc.userEmail || '',
+      phoneNumber: doc.phoneNumber || doc.userPhoneNumber || '',
+      biography: doc.biography || '',
+      profilePictureUrl: doc.profilePictureUrl || '',
+      specialtyId: doc.specialtyId || specialties.find(s => s.name === doc.specialtyName)?.id || '',
+      clinicId: doc.clinicId || clinics.find(c => c.name === doc.clinicName)?.id || '',
+      appointmentDurationMinutes: doc.appointmentDurationMinutes || 30,
+      workingHours: doc.workingHours && doc.workingHours.length > 0 ? doc.workingHours : initialForm.workingHours,
+      password: ''
+    });
+    setDoctorModal(true);
+
+    // محاولة جلب التفاصيل الكاملة من السيرفر في الخلفية لتحديث بيانات الإضافية إن وجدت
     try {
       const details = await api.get(`/doctors/${doc.id}`);
-      setIsEditing(true);
-      setCurrentDocId(doc.id);
-      setFormData({
-        ...details,
-        firstName: details.userFirstName,
-        lastName: details.userLastName,
-        email: details.userEmail,
-        phoneNumber: details.userPhoneNumber,
-        password: '',
-        isActive: details.userIsActive
-      });
-      setDoctorModal(true);
+      if (details) {
+        setFormData((prev) => ({
+          ...prev,
+          firstName: details.firstName || details.userFirstName || prev.firstName,
+          lastName: details.lastName || details.userLastName || prev.lastName,
+          email: details.email || details.userEmail || prev.email,
+          phoneNumber: details.phoneNumber || details.userPhoneNumber || prev.phoneNumber,
+          biography: details.biography || prev.biography,
+          profilePictureUrl: details.profilePictureUrl || prev.profilePictureUrl,
+          specialtyId: details.specialtyId || prev.specialtyId,
+          clinicId: details.clinicId || prev.clinicId,
+          appointmentDurationMinutes: details.appointmentDurationMinutes || prev.appointmentDurationMinutes,
+          workingHours: details.workingHours && details.workingHours.length > 0 ? details.workingHours : prev.workingHours,
+        }));
+      }
     } catch (err) {
-      showPopup('error', 'خطأ في التحميل', 'تعذر جلب بيانات الطبيب حالياً.');
+      console.error('Could not fetch extra doctor details, using table data:', err);
     }
   };
 
@@ -96,6 +124,10 @@ const ManageDoctors = () => {
         clinicId: parseInt(formData.clinicId),
         appointmentDurationMinutes: parseInt(formData.appointmentDurationMinutes),
       };
+
+      if (isEditing && !payload.password) {
+        delete payload.password;
+      }
 
       if (isEditing) {
         await api.put(`/doctors/${currentDocId}`, payload);
@@ -130,7 +162,7 @@ const ManageDoctors = () => {
           <p>إضافة أطباء جدد، ضبط جداول العمل، وتحديث الملفات الشخصية</p>
         </div>
         <button onClick={handleOpenAdd} className="btn-add-new">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           <span>إضافة طبيب جديد</span>
         </button>
       </div>
@@ -195,43 +227,48 @@ const ManageDoctors = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>الاسم الأول</label>
-                  <input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} required />
+                  <input type="text" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required />
                 </div>
                 <div className="form-group">
                   <label>الاسم الأخير</label>
-                  <input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} required />
+                  <input type="text" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
                   <label>البريد الإلكتروني</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
                 </div>
                 <div className="form-group">
                   <label>رقم الهاتف</label>
-                  <input type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} required />
+                  <input type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} required />
                 </div>
               </div>
 
-              {!isEditing && (
+              {/* {!isEditing ? (
                 <div className="form-group">
                   <label>كلمة المرور الافتراضية</label>
-                  <input type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} required minLength={6} placeholder="6 أحرف على الأقل" />
+                  <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required minLength={6} placeholder="6 أحرف على الأقل" />
                 </div>
-              )}
+              ) : (
+                <div className="form-group">
+                  <label>كلمة المرور الجديدة (اختياري)</label>
+                  <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="اتركها فارغة إذا لم ترد التغيير" minLength={6} />
+                </div>
+              )} */}
 
               <div className="form-row">
                 <div className="form-group">
                   <label>التخصص الطبي</label>
-                  <select value={formData.specialtyId} onChange={(e) => setFormData({...formData, specialtyId: e.target.value})} required>
+                  <select value={formData.specialtyId} onChange={(e) => setFormData({ ...formData, specialtyId: e.target.value })} required>
                     <option value="">اختر التخصص</option>
                     {specialties.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label>العيادة</label>
-                  <select value={formData.clinicId} onChange={(e) => setFormData({...formData, clinicId: e.target.value})} required>
+                  <select value={formData.clinicId} onChange={(e) => setFormData({ ...formData, clinicId: e.target.value })} required>
                     <option value="">اختر العيادة</option>
                     {clinics.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
@@ -241,17 +278,17 @@ const ManageDoctors = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>مدة الكشف (دقيقة)</label>
-                  <input type="number" min="10" step="5" value={formData.appointmentDurationMinutes} onChange={(e) => setFormData({...formData, appointmentDurationMinutes: e.target.value})} required />
+                  <input type="number" min="10" step="5" value={formData.appointmentDurationMinutes} onChange={(e) => setFormData({ ...formData, appointmentDurationMinutes: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>صورة الطبيب</label>
+                  <label>صورة الطبيب (اختياري)</label>
                   <input type="file" accept="image/*" onChange={handleImageUpload} />
                 </div>
               </div>
 
               <div className="form-group">
                 <label>نبذة تعريفية</label>
-                <textarea rows="2" value={formData.biography} onChange={(e) => setFormData({...formData, biography: e.target.value})} placeholder="خبرات ومؤهلات الطبيب..." />
+                <textarea rows="2" value={formData.biography} onChange={(e) => setFormData({ ...formData, biography: e.target.value })} placeholder="خبرات ومؤهلات الطبيب..." />
               </div>
 
               <h4 className="working-hours-title">ساعات العمل الأسبوعية:</h4>
@@ -263,22 +300,22 @@ const ManageDoctors = () => {
                       <input type="checkbox" checked={wh.isAvailable} onChange={(e) => {
                         const updated = [...formData.workingHours];
                         updated[idx].isAvailable = e.target.checked;
-                        setFormData({...formData, workingHours: updated});
+                        setFormData({ ...formData, workingHours: updated });
                       }} />
                       <span>متاح</span>
                     </label>
                     {wh.isAvailable && (
                       <div className="wh-time-inputs">
-                        <input type="time" value={wh.startTime.substring(0, 5)} onChange={(e) => {
+                        <input type="time" value={wh.startTime ? wh.startTime.substring(0, 5) : '09:00'} onChange={(e) => {
                           const updated = [...formData.workingHours];
                           updated[idx].startTime = `${e.target.value}:00`;
-                          setFormData({...formData, workingHours: updated});
+                          setFormData({ ...formData, workingHours: updated });
                         }} />
                         <span>إلى</span>
-                        <input type="time" value={wh.endTime.substring(0, 5)} onChange={(e) => {
+                        <input type="time" value={wh.endTime ? wh.endTime.substring(0, 5) : '17:00'} onChange={(e) => {
                           const updated = [...formData.workingHours];
                           updated[idx].endTime = `${e.target.value}:00`;
-                          setFormData({...formData, workingHours: updated});
+                          setFormData({ ...formData, workingHours: updated });
                         }} />
                       </div>
                     )}
@@ -295,20 +332,20 @@ const ManageDoctors = () => {
         </div>
       )}
 
-      {/* نافذة الإشعارات (Popup Modal) - تظهر فوق الكل بفضل Z-Index 3000 */}
+      {/* نافذة الإشعارات (Popup Modal) */}
       {infoModal.isOpen && (
-        <div className="info-popup-backdrop" onClick={() => setInfoModal({...infoModal, isOpen: false})}>
+        <div className="info-popup-backdrop" onClick={() => setInfoModal({ ...infoModal, isOpen: false })}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className={`modal-icon-wrapper ${infoModal.type}`}>
               {infoModal.type === 'success' ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
               ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
               )}
             </div>
             <h3 className="modal-title">{infoModal.title}</h3>
             <p className="modal-message">{infoModal.message}</p>
-            <button className={`btn-modal-close ${infoModal.type}`} onClick={() => setInfoModal({...infoModal, isOpen: false})}>حسناً، فهمت</button>
+            <button className={`btn-modal-close ${infoModal.type}`} onClick={() => setInfoModal({ ...infoModal, isOpen: false })}>حسناً، فهمت</button>
           </div>
         </div>
       )}
@@ -316,4 +353,4 @@ const ManageDoctors = () => {
   );
 };
 
-export default ManageDoctors;
+export default ManageDoctors; 

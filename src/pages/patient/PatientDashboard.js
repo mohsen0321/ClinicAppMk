@@ -1,27 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { api, BASE_URL } from '../../services/api';
-import clinicimage from '../public/clinicimage.png'; // استيراد نفس الصورة المحلية المستخدمة في الصفحة الرئيسية
+import clinicimage from '../public/clinicimage.png'; // نفس الصورة المحلية المستخدمة في الصفحة الرئيسية
 import './PatientDashboard.css';
+
+const STATUS_LABEL = {
+  Pending: 'قيد الانتظار',
+  Accepted: 'مقبول',
+  Rejected: 'مرفوض',
+  Completed: 'مكتمل',
+  Cancelled: 'ملغي',
+};
+
+// في بطاقة "أقرب موعد" الحالة المقبولة بتظهر "مؤكد"
+const UPCOMING_LABEL = { ...STATUS_LABEL, Accepted: 'مؤكد', Pending: 'قيد المراجعة' };
+
+const formatDate = (value) => new Date(value).toLocaleDateString('ar-EG');
+const formatTime = (value) => (value ? value.substring(0, 5) : '');
+
+const StatusBadge = ({ status, labels = STATUS_LABEL }) => (
+  <span className={`badge-status badge-${String(status).toLowerCase()}`}>
+    {labels[status] || status}
+  </span>
+);
+
+const BannerAvatar = ({ name, pictureUrl }) => {
+  const [failed, setFailed] = useState(false);
+
+  if (pictureUrl && !failed) {
+    return (
+      <img
+        src={`${BASE_URL}${pictureUrl}`}
+        alt={name}
+        className="banner-avatar"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <div className="banner-avatar banner-avatar-placeholder" aria-hidden="true">
+      {name ? name.charAt(0).toUpperCase() : 'U'}
+    </div>
+  );
+};
 
 const PatientDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        setLoading(true);
+        setError(false);
         const data = await api.get('/dashboard/patient-stats');
         setStats(data);
       } catch (err) {
         console.error('Error fetching patient stats:', err);
+        setError(true);
       } finally {
         setLoading(false);
       }
     };
     fetchStats();
-  }, []);
+  }, [reloadKey]);
 
   if (loading) {
     return (
@@ -36,225 +81,111 @@ const PatientDashboard = () => {
     );
   }
 
+  if (error || !stats) {
+    return (
+      <div className="patient-dashboard-container">
+        <div className="dashboard-error" role="alert">
+          <p>تعذر تحميل بيانات لوحة التحكم.</p>
+          <button type="button" className="btn-banner-primary" onClick={() => setReloadKey((k) => k + 1)}>
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const statCards = [
+    { key: 'total', label: 'إجمالي الحجوزات', value: stats.totalAppointments },
+    { key: 'pending', label: 'قيد الانتظار', value: stats.pendingAppointments },
+    { key: 'accepted', label: 'مقبولة ومؤكدة', value: stats.acceptedAppointments },
+    { key: 'rejected', label: 'مرفوضة', value: stats.rejectedAppointments },
+  ];
+
+  const upcoming = stats.upcomingAppointment;
+
   return (
     <div className="patient-dashboard-container">
-      {/* بطاقة الترحيب العلوية بخلفية الصورة الطبية وتعتيم احترافي */}
-      <motion.div
-        className="welcome-banner"
-        style={{ backgroundImage: `url(${clinicimage})` }}
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <div className="hero-overlay" /> {/* طبقة التعتيم الداكنة لبروز النصوص والصورة بوضوح */}
-        <div className="welcome-backdrop-glow" />
-
+      {/* الترحيب */}
+      <section className="welcome-banner" style={{ backgroundImage: `url(${clinicimage})` }}>
         <div className="welcome-content">
           <div className="welcome-text-group">
-            <span className="welcome-greeting-badge">
-              <span className="online-dot" />
-              أهلاً بك مجدداً
-            </span>
-            <h2>مرحباً بك، {stats?.patientName}</h2>
-            <p>نتمنى لك دوام الصحة والعافية. يمكنك متابعة جدول حجوزاتك وإدارة مواعيدك بكل بساطة وسلاسة.</p>
+            <h2>مرحباً بك، {stats.patientName}</h2>
+            <p>تابع جدول حجوزاتك وأدر مواعيدك من مكان واحد.</p>
           </div>
           <div className="banner-actions">
             <Link to="/patient/book" className="btn-banner-primary">
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-                <line x1="12" y1="14" x2="12" y2="18" />
-                <line x1="10" y1="16" x2="14" y2="16" />
-              </svg>
-              <span>حجز موعد كشف جديد</span>
+              حجز موعد كشف جديد
             </Link>
             <Link to="/patient/profile" className="btn-banner-secondary">
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span>تعديل الملف الشخصي</span>
+              تعديل الملف الشخصي
             </Link>
           </div>
         </div>
 
-        {stats?.profilePictureUrl ? (
-          <div className="banner-avatar-wrapper">
-            <img
-              src={`${BASE_URL}${stats.profilePictureUrl}`}
-              alt={stats.patientName}
-              className="banner-avatar"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          </div>
-        ) : (
-          <div className="banner-avatar-placeholder">
-            <span>{stats?.patientName ? stats.patientName.charAt(0).toUpperCase() : 'U'}</span>
-          </div>
-        )}
-      </motion.div>
+        <BannerAvatar
+          key={stats.profilePictureUrl || 'no-pic'}
+          name={stats.patientName}
+          pictureUrl={stats.profilePictureUrl}
+        />
+      </section>
 
-      {/* بطاقات الإحصائيات الأربعة */}
-      <div className="stats-row">
-        <div className="stat-card">
-          <div className="stat-icon total">
-            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <line x1="7" y1="14" x2="11" y2="14"></line>
-              <line x1="7" y1="17" x2="14" y2="17"></line>
-              <circle cx="15" cy="14" r="1" fill="currentColor"></circle>
-            </svg>
+      {/* الإحصائيات */}
+      <section className="stats-row" aria-label="ملخص الحجوزات">
+        {statCards.map((s) => (
+          <div key={s.key} className={`stat-card stat-${s.key}`}>
+            <span className="stat-label">{s.label}</span>
+            <span className="stat-num">{s.value || 0}</span>
           </div>
-          <div className="stat-data">
-            <span className="stat-num">{stats?.totalAppointments || 0}</span>
-            <span className="stat-label">إجمالي الحجوزات</span>
-          </div>
-        </div>
+        ))}
+      </section>
 
-        <div className="stat-card">
-          <div className="stat-icon pending">
-            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <circle cx="12" cy="15" r="3"></circle>
-              <polyline points="12 13.5 12 15 13.5 15"></polyline>
-            </svg>
-          </div>
-          <div className="stat-data">
-            <span className="stat-num">{stats?.pendingAppointments || 0}</span>
-            <span className="stat-label">حجوزات قيد الانتظار</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon accepted">
-            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <circle cx="12" cy="15" r="3.5" fill="currentColor" opacity="0.15"></circle>
-              <path d="M9.5 15l1.5 1.5 3.5-3.5" strokeWidth="2.5"></path>
-            </svg>
-          </div>
-          <div className="stat-data">
-            <span className="stat-num">{stats?.acceptedAppointments || 0}</span>
-            <span className="stat-label">حجوزات مقبولة ومؤكدة</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon rejected">
-            <svg className="feature-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <circle cx="12" cy="15" r="3.5" fill="currentColor" opacity="0.15"></circle>
-              <line x1="10" y1="13" x2="14" y2="17" strokeWidth="2.5"></line>
-              <line x1="14" y1="13" x2="10" y2="17" strokeWidth="2.5"></line>
-            </svg>
-          </div>
-          <div className="stat-data">
-            <span className="stat-num">{stats?.rejectedAppointments || 0}</span>
-            <span className="stat-label">حجوزات مرفوضة</span>
-          </div>
-        </div>
-      </div>
-
-      {/* أقرب موعد قادم */}
-      {stats?.upcomingAppointment && (
-        <div className="upcoming-section">
-          <div className="section-title-wrapper">
-            <svg className="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            <h3>أقرب موعد قادم لك</h3>
-          </div>
-
+      {/* أقرب موعد */}
+      {upcoming && (
+        <section className="upcoming-section">
+          <h3 className="block-title">أقرب موعد قادم</h3>
           <div className="upcoming-box">
-            <div className="upcoming-main-info">
-              <div className="upcoming-doc-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                  <path d="M12 9v6" />
-                  <path d="M9 12h6" />
-                </svg>
-              </div>
-              <div className="upcoming-details">
-                <h4>د. {stats.upcomingAppointment.doctorName}</h4>
-                <div className="upcoming-meta-tags">
-                  <span className="tag-item">{stats.upcomingAppointment.specialtyName}</span>
-                  <span className="tag-dot">•</span>
-                  <span className="tag-item">{stats.upcomingAppointment.clinicName}</span>
-                </div>
-                <div className="upcoming-time-row">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <span>
-                    التاريخ: {new Date(stats.upcomingAppointment.appointmentDate).toLocaleDateString('ar-EG')} | الساعة: {stats.upcomingAppointment.timeSlot?.substring(0, 5)}
-                  </span>
-                </div>
-              </div>
+            <div className="upcoming-doctor">
+              <h4>د. {upcoming.doctorName}</h4>
+              <p>
+                {upcoming.specialtyName} · {upcoming.clinicName}
+              </p>
             </div>
 
-            <div className="upcoming-status-side">
-              <span className={`status-pill status-${stats.upcomingAppointment.status.toLowerCase()}`}>
-                <span className="status-indicator-dot" />
-                {stats.upcomingAppointment.status === 'Accepted' ? 'مؤكد' : 'قيد المراجعة'}
-              </span>
-            </div>
+            <dl className="upcoming-when">
+              <div>
+                <dt>التاريخ</dt>
+                <dd>{formatDate(upcoming.appointmentDate)}</dd>
+              </div>
+              <div>
+                <dt>الساعة</dt>
+                <dd>{formatTime(upcoming.timeSlot)}</dd>
+              </div>
+            </dl>
+
+            <StatusBadge status={upcoming.status} labels={UPCOMING_LABEL} />
           </div>
-        </div>
+        </section>
       )}
 
       {/* أحدث الحجوزات */}
-      <div className="recent-appointments-card">
+      <section className="recent-appointments-card">
         <div className="card-top-header">
-          <div className="header-title-group">
-            <svg className="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" strokeWidth="3" />
-              <line x1="3" y1="12" x2="3.01" y2="12" strokeWidth="3" />
-              <line x1="3" y1="18" x2="3.01" y2="18" strokeWidth="3" />
-            </svg>
-            <h3>أحدث الحجوزات</h3>
-          </div>
+          <h3>أحدث الحجوزات</h3>
           <Link to="/patient/my-appointments" className="view-all-link">
-            <span>عرض كل الحجوزات</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
+            عرض كل الحجوزات
           </Link>
         </div>
 
-        {stats?.recentAppointments && stats.recentAppointments.length > 0 ? (
+        {stats.recentAppointments && stats.recentAppointments.length > 0 ? (
           <div className="appointments-table-wrapper">
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th>الطبيب</th>
-                  <th>التخصص</th>
-                  <th>العيادة</th>
-                  <th>التاريخ والوقت</th>
-                  <th>الحالة</th>
+                  <th scope="col">الطبيب</th>
+                  <th scope="col">التخصص</th>
+                  <th scope="col">العيادة</th>
+                  <th scope="col">التاريخ والوقت</th>
+                  <th scope="col">الحالة</th>
                 </tr>
               </thead>
               <tbody>
@@ -267,19 +198,12 @@ const PatientDashboard = () => {
                     <td>{app.clinicName}</td>
                     <td>
                       <div className="date-cell">
-                        <span>{new Date(app.appointmentDate).toLocaleDateString('ar-EG')}</span>
-                        <span className="time-sub">({app.timeSlot?.substring(0, 5)})</span>
+                        <span>{formatDate(app.appointmentDate)}</span>
+                        <span className="time-sub">({formatTime(app.timeSlot)})</span>
                       </div>
                     </td>
                     <td>
-                      <span className={`badge-status badge-${app.status.toLowerCase()}`}>
-                        <span className="badge-dot" />
-                        {app.status === 'Pending' && 'قيد الانتظار'}
-                        {app.status === 'Accepted' && 'مقبول'}
-                        {app.status === 'Rejected' && 'مرفوض'}
-                        {app.status === 'Completed' && 'مكتمل'}
-                        {app.status === 'Cancelled' && 'ملغي'}
-                      </span>
+                      <StatusBadge status={app.status} />
                     </td>
                   </tr>
                 ))}
@@ -288,16 +212,13 @@ const PatientDashboard = () => {
           </div>
         ) : (
           <div className="no-data-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
             <p>لا توجد حجوزات مسجلة بعد.</p>
+            <Link to="/patient/book" className="view-all-link">
+              احجز أول موعد
+            </Link>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

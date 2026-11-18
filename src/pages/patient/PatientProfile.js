@@ -26,27 +26,40 @@ const PatientProfile = () => {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  // حالة التحكم بالنافذة المنبثقة (Popup Modal)
-  const [modal, setModal] = useState({
-    isOpen: false,
+  // حالة الـ Toast Notifications السريعة
+  const [toast, setToast] = useState({
+    show: false,
     type: 'success', // 'success' | 'error'
-    title: '',
     message: '',
   });
+
+  // دالة لإظهار الـ Toast واختفائه تلقائياً بعد 4 ثوانٍ
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, show: false }));
+    }, 4000);
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await api.get('/auth/me');
+        const rawDob = data.dateOfBirth || data.DateOfBirth || data.birthDate || '';
+        let formattedDob = '';
+        if (rawDob) {
+          formattedDob = rawDob.includes('T') ? rawDob.split('T')[0] : rawDob.substring(0, 10);
+        }
+
         setProfile({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || '',
-          phoneNumber: data.phoneNumber || '',
-          dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split('T')[0] : '',
-          gender: data.gender || '',
-          address: data.address || '',
-          profilePictureUrl: data.profilePictureUrl || '',
+          firstName: data.firstName || data.FirstName || '',
+          lastName: data.lastName || data.LastName || '',
+          email: data.email || data.Email || '',
+          phoneNumber: data.phoneNumber || data.PhoneNumber || '',
+          dateOfBirth: formattedDob,
+          gender: data.gender || data.Gender || '',
+          address: data.address || data.Address || '',
+          profilePictureUrl: data.profilePictureUrl || data.ProfilePictureUrl || '',
         });
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -57,20 +70,17 @@ const PatientProfile = () => {
     fetchProfile();
   }, []);
 
-  // منع التمرير الخلفي عند فتح الـ Popup
-  useEffect(() => {
-    if (modal.isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [modal.isOpen]);
-
-  const closeModal = () => {
-    setModal((prev) => ({ ...prev, isOpen: false }));
+  // التحقق من اكتمال البيانات الأساسية
+  const isProfileComplete = () => {
+    return (
+      profile.firstName.trim() !== '' &&
+      profile.lastName.trim() !== '' &&
+      profile.email.trim() !== '' &&
+      profile.phoneNumber.trim() !== '' &&
+      profile.dateOfBirth.trim() !== '' &&
+      profile.gender.trim() !== '' &&
+      profile.address.trim() !== ''
+    );
   };
 
   // تحديث البيانات الأساسية
@@ -78,26 +88,23 @@ const PatientProfile = () => {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      await api.put('/auth/profile', {
-        ...profile,
+      const payload = {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+        gender: profile.gender || null,
+        address: profile.address || null,
         dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString() : null,
-      });
+        profilePictureUrl: profile.profilePictureUrl || null,
+      };
+
+      await api.put('/auth/profile', payload);
       updateUser({ firstName: profile.firstName, lastName: profile.lastName, email: profile.email });
 
-      // إظهار البوب أب النجاح
-      setModal({
-        isOpen: true,
-        type: 'success',
-        title: 'تم التحديث بنجاح!',
-        message: 'تم حفظ كافة التعديلات والبيانات الشخصية الجديدة في حسابك بنجاح.',
-      });
+      showToast('تم حفظ كافة التعديلات والبيانات الشخصية بنجاح!', 'success');
     } catch (err) {
-      setModal({
-        isOpen: true,
-        type: 'error',
-        title: 'عذراً، حدث خطأ',
-        message: err.message || 'تعذر حفظ البيانات، يرجى المحاولة مرة أخرى.',
-      });
+      showToast(err.message || 'تعذر حفظ البيانات، يرجى التأكد من ملء جميع الحقول.', 'error');
     } finally {
       setSavingProfile(false);
     }
@@ -108,12 +115,7 @@ const PatientProfile = () => {
     e.preventDefault();
 
     if (passwords.newPassword !== passwords.confirmNewPassword) {
-      setModal({
-        isOpen: true,
-        type: 'error',
-        title: 'تنبيه في كلمة المرور',
-        message: 'كلمتا المرور الجديدتان غير متطابقتين، يرجى التأكد وإعادة المحاولة.',
-      });
+      showToast('كلمتا المرور الجديدتان غير متطابقتين، يرجى التأكد.', 'error');
       return;
     }
 
@@ -122,20 +124,9 @@ const PatientProfile = () => {
       await api.put('/auth/change-password', passwords);
       setPasswords({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
 
-      // إظهار البوب أب النجاح
-      setModal({
-        isOpen: true,
-        type: 'success',
-        title: 'تم تغيير كلمة المرور 🔒',
-        message: 'تم تحديث كلمة المرور الخاصة بك بنجاح، يمكنك استخدامها في تسجيل الدخول القادم.',
-      });
+      showToast('تم تحديث كلمة المرور الخاصة بك بنجاح ', 'success');
     } catch (err) {
-      setModal({
-        isOpen: true,
-        type: 'error',
-        title: 'فشل تغيير كلمة المرور',
-        message: err.message || 'تأكد من صحة كلمة المرور الحالية والمحاولة مجدداً.',
-      });
+      showToast(err.message || 'فشل تغيير كلمة المرور، تأكد من صحة كلمة المرور الحالية.', 'error');
     } finally {
       setSavingPassword(false);
     }
@@ -143,6 +134,11 @@ const PatientProfile = () => {
 
   // رفع صورة شخصية جديدة
   const handleImageUpload = async (e) => {
+    if (!isProfileComplete()) {
+      showToast('يجب ملء وحفظ جميع بيانات البروفايل الشخصية أولاً قبل رفع الصورة.', 'error');
+      return;
+    }
+
     const file = e.target.files[0];
     if (!file) return;
 
@@ -151,26 +147,27 @@ const PatientProfile = () => {
 
     try {
       const res = await api.post('/upload', formData);
-      setProfile((prev) => ({ ...prev, profilePictureUrl: res.url }));
-      await api.put('/auth/profile', {
-        ...profile,
-        profilePictureUrl: res.url,
-      });
-      updateUser({ profilePictureUrl: res.url });
+      const newImageUrl = res.url;
 
-      setModal({
-        isOpen: true,
-        type: 'success',
-        title: 'تم تغيير الصورة الشخصية ',
-        message: 'تم تحديث صورتك الشخصية وتغييرها بنجاح في ملفك الشخصي.',
-      });
+      const payload = {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+        gender: profile.gender || null,
+        address: profile.address || null,
+        dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString() : null,
+        profilePictureUrl: newImageUrl,
+      };
+
+      await api.put('/auth/profile', payload);
+
+      setProfile((prev) => ({ ...prev, profilePictureUrl: newImageUrl }));
+      updateUser({ profilePictureUrl: newImageUrl });
+
+      showToast('تم رفع وتغيير الصورة الشخصية بنجاح ', 'success');
     } catch (err) {
-      setModal({
-        isOpen: true,
-        type: 'error',
-        title: 'فشل رفع الصورة',
-        message: err.message || 'حدث خطأ أثناء رفع الصورة الشخصية.',
-      });
+      showToast(err.message || 'حدث خطأ أثناء رفع الصورة الشخصية.', 'error');
     }
   };
 
@@ -178,26 +175,25 @@ const PatientProfile = () => {
   const handleDeleteImage = async () => {
     if (!window.confirm('هل تريد حذف صورتك الشخصية؟')) return;
     try {
-      setProfile((prev) => ({ ...prev, profilePictureUrl: '' }));
-      await api.put('/auth/profile', {
-        ...profile,
+      const payload = {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+        phoneNumber: profile.phoneNumber,
+        gender: profile.gender || null,
+        address: profile.address || null,
+        dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString() : null,
         profilePictureUrl: null,
-      });
+      };
+
+      await api.put('/auth/profile', payload);
+
+      setProfile((prev) => ({ ...prev, profilePictureUrl: '' }));
       updateUser({ profilePictureUrl: null });
 
-      setModal({
-        isOpen: true,
-        type: 'success',
-        title: 'تم حذف الصورة',
-        message: 'تم إزالة صورتك الشخصية والعودة للصورة الافتراضية بنجاح.',
-      });
+      showToast('تم حذف الصورة الشخصية والعودة للافتراضي بنجاح', 'success');
     } catch (err) {
-      setModal({
-        isOpen: true,
-        type: 'error',
-        title: 'خطأ',
-        message: err.message || 'فشل حذف الصورة.',
-      });
+      showToast(err.message || 'فشل حذف الصورة.', 'error');
     }
   };
 
@@ -213,8 +209,23 @@ const PatientProfile = () => {
     );
   }
 
+  const profileComplete = isProfileComplete();
+
   return (
     <div className="profile-container">
+      {/* Toast Notification Container */}
+      <div className={`toast-notification ${toast.show ? 'show' : ''} ${toast.type}`}>
+        <div className="toast-icon">
+          {toast.type === 'success' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+          )}
+        </div>
+        <span className="toast-message">{toast.message}</span>
+        <button type="button" className="toast-close" onClick={() => setToast((prev) => ({ ...prev, show: false }))}>&times;</button>
+      </div>
+
       {/* هيدر الصفحة */}
       <div className="page-header">
         <span className="page-badge">حسابي الشخصي</span>
@@ -232,6 +243,12 @@ const PatientProfile = () => {
             </svg>
             <h2>البيانات الشخصية</h2>
           </div>
+
+          {!profileComplete && (
+            <div style={{ background: '#fef3c7', color: '#b45309', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid #fde68a' }}>
+              ⚠️ يرجى استكمال وتحديث جميع بيانات البروفايل وحفظها لتتمكن من تفعيل ميزة رفع الصورة الشخصية.
+            </div>
+          )}
 
           {/* قسم Avatar والصورة */}
           <div className="avatar-section">
@@ -258,13 +275,22 @@ const PatientProfile = () => {
             </div>
 
             <div className="avatar-actions">
-              <label className="btn-upload-label">
+              <label
+                className={`btn-upload-label ${!profileComplete ? 'disabled' : ''}`}
+                style={{ opacity: profileComplete ? 1 : 0.6, cursor: profileComplete ? 'pointer' : 'not-allowed' }}
+              >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                   <circle cx="12" cy="13" r="4" />
                 </svg>
                 <span>تغيير الصورة</span>
-                <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={!profileComplete}
+                  style={{ display: 'none' }}
+                />
               </label>
 
               {profile.profilePictureUrl && (
@@ -344,6 +370,7 @@ const PatientProfile = () => {
                   type="date"
                   value={profile.dateOfBirth}
                   onChange={(e) => setProfile({ ...profile, dateOfBirth: e.target.value })}
+                  required
                 />
               </div>
               <div className="form-group">
@@ -352,6 +379,7 @@ const PatientProfile = () => {
                   id="gender"
                   value={profile.gender}
                   onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                  required
                 >
                   <option value="">اختر الجنس</option>
                   <option value="Male">ذكر</option>
@@ -373,6 +401,7 @@ const PatientProfile = () => {
                   value={profile.address}
                   onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                   placeholder="المدينة، الحي، الشارع"
+                  required
                 />
               </div>
             </div>
@@ -465,35 +494,6 @@ const PatientProfile = () => {
           </form>
         </div>
       </div>
-
-      {/* النافذة المنبثقة الاحترافية (Popup Modal) */}
-      {modal.isOpen && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className={`modal-icon-wrapper ${modal.type}`}>
-              {modal.type === 'success' ? (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-              )}
-            </div>
-
-            <h3 className="modal-title">{modal.title}</h3>
-            <p className="modal-message">{modal.message}</p>
-
-            <button type="button" className={`btn-modal-close ${modal.type}`} onClick={closeModal}>
-              حسناً، فهمت
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
