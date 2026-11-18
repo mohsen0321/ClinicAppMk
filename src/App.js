@@ -35,7 +35,7 @@ function App() {
   // 🟢 التحكم في الصيانة مباشرة من هنا:
   // لو عايز "توقّف" الموقع وتظهر صفحة الصيانة، خليها: true
   // لو عايز تشغل الموقع طبيعي، خليها: false
-  const isMaintenance = true;
+  const isMaintenance = false;
 
   if (isMaintenance) {
     return (
